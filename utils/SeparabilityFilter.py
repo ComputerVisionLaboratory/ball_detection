@@ -5,6 +5,7 @@ def cvtIntegralImage(X):
     Z = np.zeros((H+1, W+1), np.float64)
     Z[1:,1:] = np.cumsum(np.cumsum(X,0),1)
     return Z
+
 def cvtIntegralImage45_old(X):
     H, W = X.shape
     Z = np.zeros((H+2, W+1), np.float64)

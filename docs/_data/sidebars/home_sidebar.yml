@@ -38,10 +38,10 @@ entries:
         subfolderitems:
         - output: web,pdf
           title: Locating_a_ball_with_X-AI
-          url: Locating a Ball with X-AI-AI.html
+          url: Locating a Ball with X-AI.html
         - output: web,pdf
           title: Locating_a_ball_with_SegNets
-          url: Locating_a_ball_with_SegNets.html
+          url: Locating_a_ball_with_segnets.html
         - output: web,pdf
           title: Locating_a_ball_with_Object_Detectors
           url: Locating_a_ball_with_Object_Detectors.html

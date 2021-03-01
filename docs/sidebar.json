@@ -12,8 +12,8 @@
         "How to annotate frames with CVAT": "tutorial.CVAT.html"
       },
       "Expermients": {
-        "Locating_a_ball_with_X-AI": "Locating a Ball with X-AI-AI.html",
-        "Locating_a_ball_with_SegNets": "Locating_a_ball_with_SegNets.html",
+        "Locating_a_ball_with_X-AI": "Locating a Ball with X-AI.html",
+        "Locating_a_ball_with_SegNets": "Locating_a_ball_with_segnets.html",
         "Locating_a_ball_with_Object_Detectors": "Locating_a_ball_with_Object_Detectors.html"
       }
     }

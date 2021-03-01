@@ -28,12 +28,15 @@ entries:
       - output: web
         subfolderitems:
         - output: web,pdf
-          title: Testing pytorch models
-          url: tutorial.html
+          title: Locating_a_ball_with_X-AI
+          url: Locating_a_ball_with_X-AI.html
         - output: web,pdf
-          title: How to annotate frames with CVAT
-          url: tutorial.CVAT.html
-        title: Tutorials
+          title: Locating_a_ball_with_SegNets
+          url: Locating_a_ball_with_SegNets.html
+        - output: web,pdf
+          title: Locating_a_ball_with_Object_Detectors
+          url: Locating_a_ball_with_Object_Detectors.html
+        title: Expermients
     output: web
     title: Ball Detection
   output: web

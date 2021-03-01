@@ -1,8 +1,16 @@
 {
-  "RSF": {
+  "Ball Detection": {
     "Overview": "/",
-    "RSF": "RSF.html",
+    "dataset": "dataset.html",
+    "CNN_Module": "CNN_Module.html",
+    "RSF": "Separability_Filter.html",
+    "metrics": "metrics.html",
     "utils": "utils.html",
-    "Title": "test_separability_filter_practice(detect_circle).html"
+    "": {
+      "Tutorials": {
+        "Testing pytorch models": "tutorial.html",
+        "How to annotate frames with CVAT": "tutorial.CVAT.html"
+      }
+    }
   }
 }

@@ -1,5 +1,5 @@
-# Project name here
-> Summary description here.
+# Computer Vision for Ball Detection
+> Stuff I used to track a football in videos.
 
 
 ```
@@ -21,9 +21,4 @@ Fill me in please! Don't forget code examples:
 1+1
 ```
 
-
-
-
-    2
-
-
+## Method Comparison

@@ -10,15 +10,31 @@ entries:
       title: Overview
       url: /
     - output: web,pdf
+      title: dataset
+      url: dataset.html
+    - output: web,pdf
+      title: CNN_Module
+      url: CNN_Module.html
+    - output: web,pdf
       title: RSF
-      url: RSF.html
+      url: Separability_Filter.html
+    - output: web,pdf
+      title: metrics
+      url: metrics.html
     - output: web,pdf
       title: utils
       url: utils.html
-    - output: web,pdf
-      title: Title
-      url: test_separability_filter_practice(detect_circle).html
+      subfolders:
+      - output: web
+        subfolderitems:
+        - output: web,pdf
+          title: Testing pytorch models
+          url: tutorial.html
+        - output: web,pdf
+          title: How to annotate frames with CVAT
+          url: tutorial.CVAT.html
+        title: Tutorials
     output: web
-    title: RSF
+    title: Ball Detection
   output: web
   title: Sidebar

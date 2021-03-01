@@ -28,8 +28,17 @@ entries:
       - output: web
         subfolderitems:
         - output: web,pdf
+          title: Testing pytorch models
+          url: tutorial.html
+        - output: web,pdf
+          title: How to annotate frames with CVAT
+          url: tutorial.CVAT.html
+        title: Tutorials
+      - output: web
+        subfolderitems:
+        - output: web,pdf
           title: Locating_a_ball_with_X-AI
-          url: Locating_a_ball_with_X-AI.html
+          url: Locating a Ball with X-AI-AI.html
         - output: web,pdf
           title: Locating_a_ball_with_SegNets
           url: Locating_a_ball_with_SegNets.html

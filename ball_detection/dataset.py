@@ -4,8 +4,9 @@ __all__ = ['XMLDetectionDataset', 'CLASSES', 'XMLDetectionDataModule']
 
 # Cell
 import os
-
+import random
 import torch
+import numpy as np
 from torch import nn
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
@@ -73,7 +74,7 @@ class XMLDetectionDataset(VisionDataset):
         self.image_transform = image_transform
         self.target_transform = target_transform
         self.transform = transform
-
+        self.add_background_bbox = False
         self.image_files = sorted(list(self.root.glob("*.jpg")))
         self.xml_files = sorted(list(self.root.glob("*.xml")))
 
@@ -88,20 +89,29 @@ class XMLDetectionDataset(VisionDataset):
         Returns:
             tuple: (image, target) where target is a dictionary of the XML tree.
         """
-        img = Image.open(str(self.image_files[index])).convert("RGB")
+        img = np.asarray(Image.open(str(self.image_files[index])).convert("RGB"))
         target = self.parse_xml(ET.parse(str(self.xml_files[index])).getroot())
-        bbox = self.parse_bbox(target)
+        bbox = self.parse_bboxes(target)
+        class_labels = self.parse_labels(target)
+
+        if self.add_background_bbox:
+            bbox.append((0, 0, *img.T.shape[-2:]))
+            class_labels.append('background')
+        else:
+            if len(bbox)==0:
+                new_idx = random.choice(range(self.__len__()))
+                return self.__getitem__(new_idx)
+
+        if self.transform is not None:
+            target = self.transform(image=img, bboxes=bbox, class_labels=class_labels)
+            img = target['image']
 
         if self.image_transform:
             img = self.image_transform(img)
         if self.target_transform:
-            bbox = self.target_transform(bbox)
-        if self.transform is not None:
-            transformed = self.transform(image=img, bboxes=bbox)
-            img = transformed['image']
-            bbox = transformed['bboxes']
+            target = self.target_transform(target)
 
-        return img, bbox
+        return img, target
 
     def __len__(self) -> int:
         return len(self.image_files)
@@ -127,19 +137,21 @@ class XMLDetectionDataset(VisionDataset):
                 xml_dict[node.tag] = text
         return xml_dict
 
-    def parse_bbox(self, xml):
-        bboxes = xml['annotation']['object']
+    def parse_bboxes(self, xml):
+        _bboxes = xml['annotation']['object']
 #         assert len(bboxes) >= 1, f'File contains no/more than one instance of ball: {xml}'
-        try:
-            bbox = bboxes[0]['bndbox']
+        bboxes = []
+        for bbox in _bboxes:
+            bbox = bbox['bndbox']
             xmin = int(float(bbox['xmin']))
             ymin = int(float(bbox['ymin']))
             xmax = int(float(bbox['xmax']))
             ymax = int(float(bbox['ymax']))
+            bboxes.append((xmin, ymin,xmax,ymax))
+        return bboxes
 
-            return [xmin, ymin, xmax, ymax]
-        except IndexError:
-            return None
+    def parse_labels(self, xml):
+        return [x['name'] for x in xml['annotation']['object']]
 
     def draw_sample(self, idx=None):
         if idx is None:
@@ -151,7 +163,7 @@ class XMLDetectionDataset(VisionDataset):
 
         draw = ImageDraw.Draw(img)
         draw.rectangle([x0, y0, x1, y1])
-        return img
+
 
 # Cell
 
@@ -162,6 +174,7 @@ class XMLDetectionDataModule(LightningDataModule):
         r_train: float =None,
         r_val: float = None,
         r_test: float = None,
+        batch_size: int = 16,
         num_workers: int = 16,
         normalize: bool = False,
         shuffle: bool = False,
@@ -180,6 +193,7 @@ class XMLDetectionDataModule(LightningDataModule):
         self.r_train = r_train
         self.r_val = r_val
         self.r_test = r_test
+        self.batch_size = batch_size
         self.num_workers = num_workers
         self.normalize = normalize
         self.shuffle = shuffle
@@ -233,7 +247,7 @@ class XMLDetectionDataModule(LightningDataModule):
         """
         return DataLoader(
             self.trainset,
-            batch_size=batch_size,
+            batch_size=self.batch_size,
             shuffle=self.shuffle,
             num_workers=self.num_workers,
             drop_last=self.drop_last,
@@ -252,7 +266,7 @@ class XMLDetectionDataModule(LightningDataModule):
         """
         return DataLoader(
             self.valset,
-            batch_size=batch_size,
+            batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
             drop_last=self.drop_last,
@@ -271,7 +285,7 @@ class XMLDetectionDataModule(LightningDataModule):
         """
         return DataLoader(
             self.testset,
-            batch_size=batch_size,
+            batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
             drop_last=self.drop_last,

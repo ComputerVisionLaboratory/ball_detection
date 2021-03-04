@@ -6,12 +6,14 @@ __all__ = ['bbox_iou', 'SingleBoxDetector', 'COCO_INSTANCE_CATEGORY_NAMES', 'nam
 # Cell
 import torch
 from torch.nn import functional as F
-
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 import torchvision
 from torchvision.models import detection as models
 
 import pytorch_lightning as pl
-from detection_nbdev.metrics import bbox_iou, hungarian_loss
+from .metrics import bbox_iou, hungarian_loss
+
+from torch_optimizer import AdaBelief
 
 # Cell
 def bbox_iou(boxA, boxB):
@@ -39,6 +41,8 @@ class SingleBoxDetector(pl.LightningModule):
         super().__init__()
         self.pretrained = pretrained
         self.freeze_extractor = freeze_extractor
+        self.lr = 0.001
+        self.batch_size = 2
 
     def forward(self, x):
         return self.model(x)
@@ -80,7 +84,13 @@ class SingleBoxDetector(pl.LightningModule):
         return outputs
 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=0.02, weight_decay=1e-04)
+        optimizer = AdaBelief(self.parameters(), lr=self.lr)
+        scheduler = ReduceLROnPlateau(optimizer)
+        return {
+       'optimizer': optimizer,
+       'lr_scheduler': scheduler,
+       'monitor': 'iou_loss'
+   }
 #     >    return torch.optim.SGF(self.parameters(), lr=self.lr, aldsfk'a)
 
     def calculate_metrics(self, y, y_hat):
@@ -119,14 +129,82 @@ class TorchVisionDetector(SingleBoxDetector):
     def __init__(self, model=None, pretrained=False, freeze_extractor=False, log_level=10, num_classes=None, weight_path=None):
         super().__init__()
 
-        available_models = ['maskrcnn_resnet50_fpn', 'fasterrcnn_resnet50_fpn', 'retinanet_resnet50_fpn']
-        assert model in available_models, "Model most be from ['maskrcnn_resnet50_fpn', 'fasterrcnn_resnet50_fpn', 'retinanet_resnet50_fpn']"
-        self.model = eval(f'models.{model}(pretrained={pretrained})')
+#         available_models = ['maskrcnn_resnet50_fpn', 'fasterrcnn_resnet50_fpn', 'retinanet_resnet50_fpn']
+#         assert model in available_models, "Model most be from ['maskrcnn_resnet50_fpn', 'fasterrcnn_resnet50_fpn', 'retinanet_resnet50_fpn']"
+        self.model = model
 
-    def forward(self, x):
-        predictions = self.model(x)
+    def forward(self, images, targets=None):
+        predictions = self.model(images, targets)
         # filter out predictions of sports ball
-        func = lambda x : x[1] == sports_ball_ID
-        ball_predictions = [list(filter(func, zip(*pred.values()))) for pred in predictions]
-        ball_bboxes = [[p[0] for p in batch] for batch in ball_predictions]
-        return ball_bboxes
+#         func = lambda x : x[1] == sports_ball_ID
+#         ball_predictions = [list(filter(func, zip(*pred.values()))) for pred in predictions]
+#         ball_bboxes = [[p[0] for p in batch] for batch in ball_predictions]
+        return predictions
+
+    def training_step(self, batch, batch_idx):
+#         if epoch == 0:
+#             warmup_factor = 1. / 1000
+#             warmup_iters = min(1000, len(data_loader) - 1)
+
+#             lr_scheduler = utils.warmup_lr_scheduler(optimizer, warmup_iters, warmup_factor)
+
+        images, targets = batch
+        loss_dict = self(images, targets)
+        losses = sum(loss if not loss.isnan() else 0  for loss in loss_dict.values() ) / len(loss_dict.values())
+        iou_loss = 0 # hungarian_loss
+        total_loss = dict(loss_dict, **{"loss": losses, "iou": iou_loss})
+        return total_loss
+
+    def training_epoch_end(self, outputs):
+        d = {'epoch':self.current_epoch}
+        for metric in outputs[0].keys():
+            try:
+                val = torch.stack([x[metric] for x in outputs]).mean()
+                self.logger.experiment.add_scalar(
+                    f"{metric}/train", val, self.current_epoch
+                )
+                d[f"{metric}/train"] = val
+            except:
+                pass
+#         print(d)
+        pass
+
+    def validation_step(self, batch, batch_idx):
+        images, targets = batch
+        preds = self(images)
+        def filter_ball_bboxes(X):
+            func = lambda x : x[1] == 1
+            ball_predictions = [list(filter(func, zip(*pred.values()))) for pred in X]
+            ball_bboxes = [[p[0] for p in batch] for batch in ball_predictions]
+            return ball_bboxes
+
+        pred_bboxes = filter_ball_bboxes([{key : d[key].cpu().detach().numpy() for key in ['boxes', 'labels']} for d in preds])
+        targ_bboxes = filter_ball_bboxes([{key : d[key].cpu().detach().numpy() for key in ['boxes', 'labels']} for d in targets])
+#         print(pred_bboxes)
+#         print(targ_bboxes)
+        iou_loss = sum([hungarian_loss(A,B, bbox_iou) for A, B in zip(pred_bboxes, targ_bboxes)]) / len(preds)
+        self.log('iou_loss', iou_loss)
+        return iou_loss
+
+    def validation_epoch_end(self, outputs):
+        score = sum(outputs)/len(outputs)
+        self.logger.experiment.add_scalar(
+                f"iou/validation", score, self.current_epoch
+            )
+        print('epoch',  self.current_epoch, f"iou/validation", score)
+
+    def test_step(self, batch, batch_idx):
+        images, targets = batch
+        preds = self(images)
+        def filter_ball_bboxes(X):
+            func = lambda x : x[1] == 1
+            ball_predictions = [list(filter(func, zip(*pred.values()))) for pred in X]
+            ball_bboxes = [[p[0] for p in batch] for batch in ball_predictions]
+            return ball_bboxes
+
+        pred_bboxes = filter_ball_bboxes([{key : d[key].cpu().detach().numpy() for key in ['boxes', 'labels']} for d in preds])
+        targ_bboxes = filter_ball_bboxes([{key : d[key].cpu().detach().numpy() for key in ['boxes', 'labels']} for d in targets])
+
+        iou_loss = sum([hungarian_loss(A,B, bbox_iou) for A, B in zip(pred_bboxes, targ_bboxes)]) / len(preds)
+        self.log('iou_loss', iou_loss)
+        return iou_loss

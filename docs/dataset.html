@@ -53,7 +53,7 @@ nb_path: "nbs/00_dataset.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="XMLDetectionDataset" class="doc_header"><code>class</code> <code>XMLDetectionDataset</code><a href="https://github.com/AtomScott/ball_detection/tree/master/ball_detection/dataset.py#L51" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>XMLDetectionDataset</code>(<strong>*<code>args</code></strong>, <strong>**<code>kwds</code></strong>) :: <code>VisionDataset</code></p>
+<h2 id="XMLDetectionDataset" class="doc_header"><code>class</code> <code>XMLDetectionDataset</code><a href="https://github.com/AtomScott/ball_detection/tree/master/ball_detection/dataset.py#L52" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>XMLDetectionDataset</code>(<strong>*<code>args</code></strong>, <strong>**<code>kwds</code></strong>) :: <code>VisionDataset</code></p>
 </blockquote>
 <p><code>Pascal VOC &lt;http://host.robots.ox.ac.uk/pascal/VOC/&gt;</code>_ Detection Dataset.</p>
 <p>Args:
@@ -96,32 +96,15 @@ nb_path: "nbs/00_dataset.ipynb"
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data_dir</span> <span class="o">=</span> <span class="s1">&#39;../detection/data/train&#39;</span> <span class="c1"># path to data</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data_dir</span> <span class="o">=</span> <span class="s1">&#39;../data/train&#39;</span> <span class="c1"># path to data</span>
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">XMLDetectionDataset</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">image_transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target_transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Samples found:&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">))</span>
 
 <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">ll</span><span class="p">)</span> <span class="ow">in</span> <span class="n">track</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">dataset</span><span class="p">),</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)):</span>
-    <span class="k">break</span>
+    <span class="k">pass</span>
 </pre></div>
 
     </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-
-<div class="output_html rendered_html output_subarea ">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">Samples found: <span style="color: #000080; font-weight: bold">2676</span>
-</pre>
-
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -139,7 +122,7 @@ nb_path: "nbs/00_dataset.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="XMLDetectionDataset.draw_sample" class="doc_header"><code>XMLDetectionDataset.draw_sample</code><a href="https://github.com/AtomScott/ball_detection/tree/master/ball_detection/dataset.py#L144" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>XMLDetectionDataset.draw_sample</code>(<strong><code>idx</code></strong>=<em><code>None</code></em>)</p>
+<h4 id="XMLDetectionDataset.draw_sample" class="doc_header"><code>XMLDetectionDataset.draw_sample</code><a href="https://github.com/AtomScott/ball_detection/tree/master/ball_detection/dataset.py#L156" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>XMLDetectionDataset.draw_sample</code>(<strong><code>idx</code></strong>=<em><code>None</code></em>)</p>
 </blockquote>
 
 </div>
@@ -389,7 +372,7 @@ nb_path: "nbs/00_dataset.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="XMLDetectionDataModule" class="doc_header"><code>class</code> <code>XMLDetectionDataModule</code><a href="https://github.com/AtomScott/ball_detection/tree/master/ball_detection/dataset.py#L158" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>XMLDetectionDataModule</code>(<strong>*<code>args</code></strong>, <strong>**<code>kwargs</code></strong>) :: <code>LightningDataModule</code></p>
+<h2 id="XMLDetectionDataModule" class="doc_header"><code>class</code> <code>XMLDetectionDataModule</code><a href="https://github.com/AtomScott/ball_detection/tree/master/ball_detection/dataset.py#L170" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>XMLDetectionDataModule</code>(<strong>*<code>args</code></strong>, <strong>**<code>kwargs</code></strong>) :: <code>LightningDataModule</code></p>
 </blockquote>
 <p>A DataModule standardizes the training, val, test splits, data preparation and transforms.
 The main advantage is consistent data splits, data preparation and transforms across models.</p>

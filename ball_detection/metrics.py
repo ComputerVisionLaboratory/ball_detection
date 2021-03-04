@@ -39,4 +39,8 @@ def hungarian_loss(boxesA, boxesB, loss_func=bbox_iou, maximize=True):
                 cost_matrix[i, j] = bbox_iou(boxA, boxB)
 
     row_ind, col_ind = linear_sum_assignment(cost_matrix, maximize=maximize)
-    return cost_matrix[row_ind, col_ind].mean()
+    loss = cost_matrix[row_ind, col_ind].mean()
+    if loss.isnan():
+        return 0
+    else:
+        return loss

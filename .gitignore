@@ -1,6 +1,7 @@
 submodules/
 data/
 results/
+*.mp4
 
 *.bak
 .gitattributes
